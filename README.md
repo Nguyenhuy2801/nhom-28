@@ -1,6 +1,6 @@
 # nhom-28
-Tên ứng dụng:food for family
-Các nhóm người dùng: người học nấu ăn, bà nội trợ, những người có nhu cầu vào bếp
+# Tên ứng dụng: Food For Family
+# Các nhóm người dùng: người học nấu ăn, bà nội trợ, những người có nhu cầu vào bếp
 Mô tả tóm tắt phần mềm :
 + Hỗ trợ người dùng về công thức nấu ăn
 + Cung cấp thực đơn mỗi ngày 
