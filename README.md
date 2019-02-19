@@ -13,3 +13,18 @@ Phác thảo các màn hình chính của ứng dụng:
 + có sử dụng bootstrap
 + thiết kế dựa trên các trang web dạy nấu ăn 
 <img src="https://www199.lunapic.com/do-not-link-here-use-hosting-instead/155033205439877772?2381928987">
+
+# Bài tập tuần 2:
+- Phương pháp Agile: Kanban.
+- Lên kế hoạch: Tuần 1 + 2
+- Thực hiện dự án: 6 tuần 
+
+- Nhiệm vụ theo tuần:
+    + Tuần 1 + 2 : lên kế hoạch và dự án (đã hoàn thành)
+    + Tuần 3 : xây dựng giao diện màn hình chính (đang thực hiện)
+    + Tuần 4 : Xây dựng mục công thức nấu ăn + kiểm thử
+    + Tuần 5: Phát triển thêm 3 hạng mục còn lại
+    + Tuần 6: kiểm thử và hoàn thiện ứng dụng
+
+
+
