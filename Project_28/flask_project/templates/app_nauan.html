@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block right %}
+    {% for item in mon %}
+        <div>
+            
+            <img src="{{ item.image }}" style="width: 600px; display: block;margin-left: auto;margin-right: auto">
+            <h3 style="text-align: center; font-weight: bolder;">{{ item.ten_mon }}</h3>
+            <h4>Nguyên liệu: </h4>
+            <p>{{ item.nguyen_lieu | safe }}</p>
+            <h4>Công thức:</h4>
+            <p>{{ item.cong_thuc | safe }}</p>
+            
+            
+        </div>
+        <div>
+            <iframe width="850" height="485" src="{{ item.linkVideo }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+        </div>
+
+    {% endfor %}
+{% endblock %}
+{% block body %}
+    {{ super() }}
+{% endblock %}
