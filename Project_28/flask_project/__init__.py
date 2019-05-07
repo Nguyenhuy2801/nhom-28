@@ -1,4 +1,4 @@
-from db import connection
+from qb import connection
 from api import sqldb
 
 sqldb = sqldb
