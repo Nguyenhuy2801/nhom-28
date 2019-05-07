@@ -3,7 +3,7 @@
 from flask import Flask, render_template, redirect, request, url_for
 import pymysql
 from flask_sqlalchemy import SQLAlchemy
-from db import connection, host, user, password, dbname
+from qb import connection, host, user, password, dbname
 
 
 app = Flask(__name__)
