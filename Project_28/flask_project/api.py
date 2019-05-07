@@ -2,23 +2,58 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, redirect, request, url_for
 import pymysql
-from db import connection
+from flask_sqlalchemy import SQLAlchemy
+from db import connection, host, user, password, dbname
+
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@localhost:3306/{}'.format(user, password, dbname)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+sqldb = SQLAlchemy(app)
 
 def getlinkstatic():
 
     getLink=[{
         "linkTrangchu": url_for('my_home'),
-        "linkMua": url_for('itemCT', donviCT="_mua"),
-        "linkCachchebien": url_for('itemCT', donviCT="cach_cb"),
-        "linkThanhphan": url_for('itemCT', donviCT="thanh_phan"),
-        "linkVanhoa": url_for('itemCT', donviCT="van_hoa"),
+        "linkMua": url_for('itemCT', donviCT="_mua", category = 'all'),
+        "linkCachchebien": url_for('itemCT', donviCT="cach_cb", category = 'all'),
+        "linkThanhphan": url_for('itemCT', donviCT="thanh_phan", category = 'all'),
+        "linkVanhoa": url_for('itemCT', donviCT="van_hoa", category = 'all'),
         "linkMeovaobep": url_for('meovat')
     }]
     
     return getLink
 
+def getListDishes(results):
+    listData = []
+    for result in results:
+        jsonData = {
+            "tenmon": result[0],
+            "linkImg": result[1], 
+            "linkMon": url_for('monan', tenmon=result[0])
+        }
+        listData.append(jsonData)
+    connection().close()
+    return listData
+
+def getTitle(donviCT):
+    switcher = {
+        "_mua": "Món ăn theo mùa".decode('utf-8'),
+        "cach_cb": "Món ăn theo cách chế biến".decode('utf-8'),
+        "thanh_phan": "Món ăn theo thành phần".decode('utf-8'),
+        "van_hoa": "Món ăn theo văn hóa".decode('utf-8'),
+    }
+    return switcher.get(donviCT, "Trang chủ".decode('utf-8'))
+
+def model(donviCT):
+    switcher = {
+        "_mua": _mua,
+        "cach_cb": Cach_cb,
+        "thanh_phan": Thanh_phan,
+        "van_hoa": Van_hoa,
+    }
+    return switcher.get(donviCT)
 
 # Trang chủ
 @app.route('/home')
