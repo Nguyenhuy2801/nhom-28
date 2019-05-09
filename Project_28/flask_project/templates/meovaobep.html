@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}Mẹo vào bếp{% endblock %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block menu %}
+    {{ super() }}
+{% endblock %}
+
+{% block right%}
+    <ul>
+        {% for it in listmeovat %}
+        <li>
+            <a href="{{ it.linkMeovat }}">
+                <h2>{{ it.Ten }}</h2>
+                
+            </a>
+            <p>{{ it.mota }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+{% block body %}
+    {{ super() }}
+{% endblock %}
