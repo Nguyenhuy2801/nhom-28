@@ -138,9 +138,18 @@ def itemCT(donviCT):
 
 
 # giao diện mẹo vào bếp
-@app.route('/home/meovaobep')
+@app.route('/home/meovaobep', methods = ["GET", "POST"])
 def meovat():
-    return render_template('meovaobep.html', getLink=getlinkstatic())
+    timkiem = ""
+    if request.method == 'POST':
+        timkiem = "Kết quả tìm kiếm: "
+        search = request.form.get("search")
+        listData = searching_meo(search)
+    else :
+        results = Meovat.query.with_entities(Meovat.name, Meovat.mo_ta).order_by(Meovat.id.desc()).limit(10).all()
+        listData = listmeo(results)
+    return render_template('meovaobep.html', timkiem = timkiem, getLink=getlinkstatic(), listmeovat = listData, menu=getlinkstatic())
+
 
 # giao diện công thức món ăn cụ thể
 @app.route('/home/congthucnauan/<tenmon>', methods = ["GET", "POST"])
