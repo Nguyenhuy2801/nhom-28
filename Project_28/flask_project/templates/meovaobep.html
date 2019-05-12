@@ -11,17 +11,20 @@
 {% endblock %}
 
 {% block right%}
-    <ul>
-        {% for it in listmeovat %}
-        <li>
-            <a href="{{ it.linkMeovat }}">
-                <h2>{{ it.Ten }}</h2>
-                
-            </a>
-            <p>{{ it.mota }}</p>
-        </li>
-        {% endfor %}
-    </ul>
+<div id = "right">
+        <ul>
+                {% for it in listmeovat %}
+                <li>
+                    <a href="{{ it.linkMeovat }}" style="font-size: 35px">
+                        <h3>{{ it.Ten }}</h3>
+                        
+                    </a>
+                    <p>{{ it.mota }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+</div>
+    
 {% endblock %}
 {% block body %}
     {{ super() }}
