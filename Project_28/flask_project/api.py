@@ -173,6 +173,26 @@ def monan(tenmon):
 
 
 # giao diện mẹo vặt cụ thể
-@app.route('/home/meo_vao_bep/<tenmeovat>')
+@app.route('/home/meo_vao_bep/<tenmeovat>', methods = ["GET", "POST"])
 def meovaobep(tenmeovat):
-    return render_template('app_meovat.html', getLink=getlinkstatic(), title = tenmeovat)
+    timkiem = ""
+    if request.method == 'POST':
+        timkiem = "Kết quả tìm kiếm: "
+        search = request.form.get("search")
+        listData = searching_meo(search)
+        return render_template('meovaobep.html', timkiem = timkiem, getLink=getlinkstatic(), listmeovat = listData, menu=getlinkstatic())
+    else :
+        
+        results = Meovaobep.query.\
+            with_entities(Meovaobep.name, Meovaobep.mo_ta, Meovaobep.image).\
+                join(Meovat).filter(Meovaobep.id_meo == Meovat.id).filter(Meovat.name == tenmeovat).all()
+        meo = []
+        for result in results:
+            jsonData = {
+                "name": result[0],
+                "mota": result[1],
+                "image": result[2]
+            }
+            meo.append(jsonData)
+        connection().close()
+    return render_template('app_meovat.html', timkiem = timkiem, getLink=getlinkstatic(), meo=meo, title = tenmeovat, menu=getlinkstatic())
