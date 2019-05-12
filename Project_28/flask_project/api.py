@@ -39,12 +39,12 @@ def getListDishes(results):
 
 def getTitle(donviCT):
     switcher = {
-        "_mua": "Món ăn theo mùa".decode('utf-8'),
-        "cach_cb": "Món ăn theo cách chế biến".decode('utf-8'),
-        "thanh_phan": "Món ăn theo thành phần".decode('utf-8'),
-        "van_hoa": "Món ăn theo văn hóa".decode('utf-8'),
+        "_mua": "Món ăn theo mùa",
+        "cach_cb": "Món ăn theo cách chế biến",
+        "thanh_phan": "Món ăn theo thành phần",
+        "van_hoa": "Món ăn theo văn hóa",
     }
-    return switcher.get(donviCT, "Trang chủ".decode('utf-8'))
+    return switcher.get(donviCT, "Trang chủ")
 
 def model(donviCT):
     switcher = {
@@ -54,6 +54,34 @@ def model(donviCT):
         "van_hoa": Van_hoa,
     }
     return switcher.get(donviCT)
+
+def query(donviCT, category):
+    if category == 'all':
+
+        switcher = {
+            "_mua": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(_mua).filter(Mon_an.ma_mua == _mua.id).all(),
+            "cach_cb": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(Cach_cb).filter(Mon_an.ma_cach_cb == Cach_cb.id).all(),
+            "thanh_phan": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(Thanh_phan).filter(Mon_an.ma_nl == Thanh_phan.id).all(),
+            "van_hoa": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(Van_hoa).filter(Mon_an.ma_vh == Van_hoa.id).all(),
+        }
+        return switcher.get(donviCT)
+    else:
+        switcher = {
+            "_mua": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(_mua).filter(Mon_an.ma_mua == _mua.id).filter(_mua.name == category).all(),
+            "cach_cb": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(Cach_cb).filter(Mon_an.ma_cach_cb == Cach_cb.id).filter(Cach_cb.name == category).all(),
+            "thanh_phan": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(Thanh_phan).filter(Mon_an.ma_nl == Thanh_phan.id).filter(Thanh_phan.name == category).all(),
+            "van_hoa": Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            join(Van_hoa).filter(Mon_an.ma_vh == Van_hoa.id).filter(Van_hoa.name == category).all(),
+        }
+        return switcher.get(donviCT)
+    
 def searching(search):
     results = search_mon(search)
     listData =[]
