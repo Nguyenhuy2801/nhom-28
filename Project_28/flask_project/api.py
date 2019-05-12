@@ -85,10 +85,34 @@ def meovat():
     return render_template('meovaobep.html', getLink=getlinkstatic())
 
 # giao diện công thức món ăn cụ thể
-@app.route('/home/congthucnauan/<tenmon>')
+@app.route('/home/congthucnauan/<tenmon>', methods = ["GET", "POST"])
 def monan(tenmon):
-    
-    return render_template('app_nauan.html', getLink=getlinkstatic())
+    timkiem = ""
+    if request.method == 'POST':
+        timkiem = "Kết quả tìm kiếm: "
+        search = request.form.get("search")
+        listData = searching(search)
+        return render_template('trangchu.html', timkiem = timkiem, getLink=getlinkstatic(), listmonan=listData, menu=getlinkstatic())
+    else:
+        results = Mon_an.query.\
+            with_entities(Mon_an.ten_mon, Mon_an.cong_thuc, Mon_an.nguyen_lieu, Mon_an.image, Mon_an.video).\
+            filter(Mon_an.ten_mon == tenmon).order_by(Mon_an.ma_mon.desc()).all()
+        mon = []
+        for result in results:
+            if(len(result[4]) != 0):
+                video = result[4]
+            else :
+                video = "#"
+            jsonData = {"ten_mon": result[0], 
+                        "cong_thuc": result[1], 
+                        "nguyen_lieu": result[2], 
+                        "image": result[3],
+                        "linkVideo": video
+                        }
+            mon.append(jsonData)
+        title= tenmon
+    return render_template('app_nauan.html', timkiem = timkiem, getLink=getlinkstatic(), title=title,mon=mon, menu=getlinkstatic())
+
 
 # giao diện mẹo vặt cụ thể
 @app.route('/home/meo_vao_bep/<tenmeovat>')
