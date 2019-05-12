@@ -1,1 +1,29 @@
+{% extends "layout.html" %}
 
+{% block title %}Mẹo vào bếp{% endblock %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block menu %}
+    {{ super() }}
+{% endblock %}
+
+{% block right %}
+<div>
+    <hr />
+    <h3 style="text-align:center">{{ title }}</h3>
+    <br>
+    {% for item in meo %}
+    <img src="{{ item.image }}" style="width: 400px; display: block;margin-left: auto;margin-right: auto">
+    <h5>{{ item.name }}</h5>
+    <p>{{ item.mota }}</p>
+    <hr>
+    {% endfor %}
+</div>
+    
+{% endblock %}
+{% block body %}
+    {{ super() }}
+{% endblock %}
