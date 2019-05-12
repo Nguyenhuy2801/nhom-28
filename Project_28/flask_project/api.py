@@ -54,6 +54,17 @@ def model(donviCT):
         "van_hoa": Van_hoa,
     }
     return switcher.get(donviCT)
+def searching(search):
+    results = search_mon(search)
+    listData =[]
+    for result in results:
+        jsonData = {
+            "tenmon": result["_source"]["ten_mon"],
+            "linkImg": result["_source"]["image"], 
+            "linkMon": url_for('monan', tenmon=result["_source"]["ten_mon"])
+        }
+        listData.append(jsonData)
+    return listData
 
 # Trang chủ
 @app.route('/home')
