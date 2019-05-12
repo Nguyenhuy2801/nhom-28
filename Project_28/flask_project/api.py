@@ -34,7 +34,6 @@ def getListDishes(results):
             "linkMon": url_for('monan', tenmon=result[0])
         }
         listData.append(jsonData)
-    connection().close()
     return listData
 
 def getTitle(donviCT):
@@ -90,6 +89,28 @@ def searching(search):
             "tenmon": result["_source"]["ten_mon"],
             "linkImg": result["_source"]["image"], 
             "linkMon": url_for('monan', tenmon=result["_source"]["ten_mon"])
+        }
+        listData.append(jsonData)
+    return listData
+def searching_meo(search):
+    results = search_meo(search, Meovat)
+    listData = []
+    for result in results:
+        jsonData = {
+            "Ten": result["_source"]["name"],
+            "mota": result["_source"]["mo_ta"],
+            "linkMeovat": url_for('meovaobep', tenmeovat= result["_source"]["name"])
+        }
+        listData.append(jsonData)
+    return listData
+
+def listmeo(results):
+    listData = []
+    for result in results:
+        jsonData = {
+            "Ten": result[0],
+            "mota": result[1], 
+            "linkMeovat": url_for('meovaobep', tenmeovat= result[0])
         }
         listData.append(jsonData)
     return listData
