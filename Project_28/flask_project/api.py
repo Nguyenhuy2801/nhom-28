@@ -74,10 +74,29 @@ def my_home():
     return render_template('trangchu.html', getLink=getlinkstatic(), listmonan=listData)
 
 # giao diện các công thức đơn vị
-@app.route('/home/<donviCT>')
+@app.route('/home/<donviCT>', methods =["GET","POST"])
 def itemCT(donviCT):
-    
-    return render_template('itemcongthuc.html', getLink=getlinkstatic(), title=donviCT)
+    timkiem = ""
+    category = request.args.get('category')
+    class_name = model(donviCT)
+    results = class_name.query.with_entities(class_name.name).all()
+    congthucnauan = []
+    for result in results:
+        jsonData = {
+            "link": url_for('itemCT', donviCT = donviCT, category = result[0]),
+            "name": result[0]
+        }
+        congthucnauan.append(jsonData)
+    if request.method == 'POST':
+        search = request.form.get("search")
+        listmonan = searching(search)
+        timkiem = "Kết quả tìm kiếm: "
+    else:
+        res = query(donviCT, category)
+        listmonan = getListDishes(res)
+
+    return render_template('itemcongthuc.html', timkiem = timkiem, getLink=getlinkstatic(), title = getTitle(donviCT), congthucnauan = congthucnauan, listmonan = listmonan)
+
 
 # giao diện mẹo vào bếp
 @app.route('/home/meovaobep')
