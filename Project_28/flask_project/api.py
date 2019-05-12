@@ -116,22 +116,18 @@ def listmeo(results):
     return listData
 
 # Trang chủ
-@app.route('/home')
+@app.route('/', methods =["GET","POST"])
 def my_home():
-    cursor = connection().cursor()
-    query = "SELECT ten_mon, image from mon_an order by ma_mon limit 10"
-    cursor.execute(query)
-    results = cursor.fetchall()
-    listData = []
-    for result in results:
-        jsonData = {
-            "tenmon": result[0].decode('utf-8'),
-            "linkImg": result[1], 
-            "linkMon": url_for('monan', tenmon=result[0])
-        }
-        listData.append(jsonData)
-    connection().close()
-    return render_template('trangchu.html', getLink=getlinkstatic(), listmonan=listData)
+    if request.method == 'POST':
+        search = request.form.get("search")
+        listData = searching(search)
+        timkiem = "Kết quả tìm kiếm: "
+    else:
+        results = Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
+            order_by(Mon_an.ma_mon.asc()).all()
+        listData = getListDishes(results)
+        timkiem =  ""
+    return render_template('trangchu.html', getLink=getlinkstatic(), listmonan=listData, menu=getlinkstatic())
 
 # giao diện các công thức đơn vị
 @app.route('/home/<donviCT>', methods =["GET","POST"])
