@@ -3,14 +3,20 @@
 from flask import Flask, render_template, redirect, request, url_for
 import pymysql
 from flask_sqlalchemy import SQLAlchemy
-from qb import connection, host, user, password, dbname
+from db import connection, host, user, password, dbname
+from elasticsearch import Elasticsearch
+
 
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@localhost:3306/{}'.format(user, password, dbname)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@{}/{}${}'.format(user, password, host, user,dbname)
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 sqldb = SQLAlchemy(app)
+
+from models import Mon_an, Thanh_phan, Van_hoa, Cach_cb, _mua, Meovaobep, Meovat
+from models import search_mon, search_meo
 
 def getlinkstatic():
 
@@ -22,7 +28,7 @@ def getlinkstatic():
         "linkVanhoa": url_for('itemCT', donviCT="van_hoa", category = 'all'),
         "linkMeovaobep": url_for('meovat')
     }]
-    
+
     return getLink
 
 def getListDishes(results):
@@ -30,7 +36,7 @@ def getListDishes(results):
     for result in results:
         jsonData = {
             "tenmon": result[0],
-            "linkImg": result[1], 
+            "linkImg": result[1],
             "linkMon": url_for('monan', tenmon=result[0])
         }
         listData.append(jsonData)
@@ -38,12 +44,12 @@ def getListDishes(results):
 
 def getTitle(donviCT):
     switcher = {
-        "_mua": "Món ăn theo mùa",
-        "cach_cb": "Món ăn theo cách chế biến",
-        "thanh_phan": "Món ăn theo thành phần",
-        "van_hoa": "Món ăn theo văn hóa",
+        "_mua": "Món ăn theo mùa".decode('utf-8'),
+        "cach_cb": "Món ăn theo cách chế biến".decode('utf-8'),
+        "thanh_phan": "Món ăn theo thành phần".decode('utf-8'),
+        "van_hoa": "Món ăn theo văn hóa".decode('utf-8'),
     }
-    return switcher.get(donviCT, "Trang chủ")
+    return switcher.get(donviCT, "Trang chủ".decode('utf-8'))
 
 def model(donviCT):
     switcher = {
@@ -80,26 +86,27 @@ def query(donviCT, category):
             join(Van_hoa).filter(Mon_an.ma_vh == Van_hoa.id).filter(Van_hoa.name == category).all(),
         }
         return switcher.get(donviCT)
-    
+
 def searching(search):
     results = search_mon(search)
     listData =[]
     for result in results:
         jsonData = {
-            "tenmon": result["_source"]["ten_mon"],
-            "linkImg": result["_source"]["image"], 
-            "linkMon": url_for('monan', tenmon=result["_source"]["ten_mon"])
+            "tenmon": result["_source"]["ten_mon"].encode('utf-8'),
+            "linkImg": result["_source"]["image"].encode('utf-8'),
+            "linkMon": url_for('monan', tenmon=result["_source"]["ten_mon"].encode('utf-8'))
         }
         listData.append(jsonData)
     return listData
+
 def searching_meo(search):
     results = search_meo(search, Meovat)
     listData = []
     for result in results:
         jsonData = {
-            "Ten": result["_source"]["name"],
-            "mota": result["_source"]["mo_ta"],
-            "linkMeovat": url_for('meovaobep', tenmeovat= result["_source"]["name"])
+            "Ten": result["_source"]["name"].encode('utf-8'),
+            "mota": result["_source"]["mo_ta"].encode('utf-8'),
+            "linkMeovat": url_for('meovaobep', tenmeovat= result["_source"]["name"].encode('utf-8'))
         }
         listData.append(jsonData)
     return listData
@@ -109,7 +116,7 @@ def listmeo(results):
     for result in results:
         jsonData = {
             "Ten": result[0],
-            "mota": result[1], 
+            "mota": result[1],
             "linkMeovat": url_for('meovaobep', tenmeovat= result[0])
         }
         listData.append(jsonData)
@@ -121,18 +128,15 @@ def my_home():
     if request.method == 'POST':
         search = request.form.get("search")
         listData = searching(search)
-        timkiem = "Kết quả tìm kiếm: "
     else:
         results = Mon_an.query.with_entities(Mon_an.ten_mon, Mon_an.image).\
             order_by(Mon_an.ma_mon.asc()).all()
         listData = getListDishes(results)
-        timkiem =  ""
     return render_template('trangchu.html', getLink=getlinkstatic(), listmonan=listData, menu=getlinkstatic())
 
 # giao diện các công thức đơn vị
 @app.route('/home/<donviCT>', methods =["GET","POST"])
 def itemCT(donviCT):
-    timkiem = ""
     category = request.args.get('category')
     class_name = model(donviCT)
     results = class_name.query.with_entities(class_name.name).all()
@@ -146,37 +150,29 @@ def itemCT(donviCT):
     if request.method == 'POST':
         search = request.form.get("search")
         listmonan = searching(search)
-        timkiem = "Kết quả tìm kiếm: "
     else:
         res = query(donviCT, category)
         listmonan = getListDishes(res)
 
-    return render_template('itemcongthuc.html', timkiem = timkiem, getLink=getlinkstatic(), title = getTitle(donviCT), congthucnauan = congthucnauan, listmonan = listmonan)
+    return render_template('itemcongthuc.html', getLink=getlinkstatic(), title = getTitle(donviCT), congthucnauan = congthucnauan, listmonan = listmonan)
 
-
-# giao diện mẹo vào bếp
 @app.route('/home/meovaobep', methods = ["GET", "POST"])
 def meovat():
-    timkiem = ""
     if request.method == 'POST':
-        timkiem = "Kết quả tìm kiếm: "
         search = request.form.get("search")
         listData = searching_meo(search)
     else :
         results = Meovat.query.with_entities(Meovat.name, Meovat.mo_ta).order_by(Meovat.id.desc()).limit(10).all()
         listData = listmeo(results)
-    return render_template('meovaobep.html', timkiem = timkiem, getLink=getlinkstatic(), listmeovat = listData, menu=getlinkstatic())
-
+    return render_template('meovaobep.html', getLink=getlinkstatic(), listmeovat = listData, menu=getlinkstatic())
 
 # giao diện công thức món ăn cụ thể
 @app.route('/home/congthucnauan/<tenmon>', methods = ["GET", "POST"])
 def monan(tenmon):
-    timkiem = ""
     if request.method == 'POST':
-        timkiem = "Kết quả tìm kiếm: "
         search = request.form.get("search")
         listData = searching(search)
-        return render_template('trangchu.html', timkiem = timkiem, getLink=getlinkstatic(), listmonan=listData, menu=getlinkstatic())
+        return render_template('trangchu.html', getLink=getlinkstatic(), listmonan=listData, menu=getlinkstatic())
     else:
         results = Mon_an.query.\
             with_entities(Mon_an.ten_mon, Mon_an.cong_thuc, Mon_an.nguyen_lieu, Mon_an.image, Mon_an.video).\
@@ -187,31 +183,28 @@ def monan(tenmon):
                 video = result[4]
             else :
                 video = "#"
-            jsonData = {"ten_mon": result[0], 
-                        "cong_thuc": result[1], 
-                        "nguyen_lieu": result[2], 
+            jsonData = {"ten_mon": result[0],
+                        "cong_thuc": result[1],
+                        "nguyen_lieu": result[2],
                         "image": result[3],
                         "linkVideo": video
                         }
             mon.append(jsonData)
         title= tenmon
-    return render_template('app_nauan.html', timkiem = timkiem, getLink=getlinkstatic(), title=title,mon=mon, menu=getlinkstatic())
-
+    return render_template('app_nauan.html', getLink=getlinkstatic(), title=title,mon=mon, menu=getlinkstatic())
 
 # giao diện mẹo vặt cụ thể
 @app.route('/home/meo_vao_bep/<tenmeovat>', methods = ["GET", "POST"])
 def meovaobep(tenmeovat):
-    timkiem = ""
     if request.method == 'POST':
-        timkiem = "Kết quả tìm kiếm: "
         search = request.form.get("search")
         listData = searching_meo(search)
-        return render_template('meovaobep.html', timkiem = timkiem, getLink=getlinkstatic(), listmeovat = listData, menu=getlinkstatic())
+        return render_template('meovaobep.html', getLink=getlinkstatic(), listmeovat = listData, menu=getlinkstatic())
     else :
-        
+
         results = Meovaobep.query.\
             with_entities(Meovaobep.name, Meovaobep.mo_ta, Meovaobep.image).\
-                join(Meovat).filter(Meovaobep.id_meo == Meovat.id).filter(Meovat.name == tenmeovat).all()
+                join(Meovat).filter(Meovaobep.id_meo == Meovat.id).filter(Meovat.name == tenmeovat.decode('utf-8')).all()
         meo = []
         for result in results:
             jsonData = {
@@ -221,4 +214,7 @@ def meovaobep(tenmeovat):
             }
             meo.append(jsonData)
         connection().close()
-    return render_template('app_meovat.html', timkiem = timkiem, getLink=getlinkstatic(), meo=meo, title = tenmeovat, menu=getlinkstatic())
+    return render_template('app_meovat.html', getLink=getlinkstatic(), meo=meo, title = tenmeovat, menu=getlinkstatic())
+
+if __name__ == '__main__':
+    app.run()
