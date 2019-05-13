@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from flask_sqlalchemy import SQLAlchemy
-from __main__ import sqldb
-# from api import sqldb
+# from __main__ import sqldb
+from api import sqldb
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
 from elasticsearch import Elasticsearch
 from flask_sqlalchemy import SQLAlchemy
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch('http://localhost:9200')
+es = Elasticsearch('https://bd3gzan5ur:8i2skk418m@foodforfamily-821201285.ap-southeast-2.bonsaisearch.net')
 
 
 class Mon_an(sqldb.Model):
@@ -39,7 +39,7 @@ class Mon_an(sqldb.Model):
         self.video = video
         sqldb.session.add(self)
         sqldb.session.commit()
-    
+
     # def __repr__(self):
     #     return '%r' % self.ten_mon
 
@@ -128,7 +128,7 @@ def search_mon(query):
     body = {
         "_source": ["ten_mon", "image"],
         "query": {
-            
+
             "multi_match" : {
             "query": query,
             "fields": [ "ten_mon"]
@@ -155,7 +155,3 @@ def search_meo(query, model):
     data = search['hits']['hits']
     return data
 
-
-# if __name__ == '__main__':
-
-    # sqldb.create_all()
