@@ -4,7 +4,7 @@ import pymysql
 
 host = "foodforfamilyf3.mysql.pythonanywhere-services.com"
 user = "foodforfamilyf3"
-password = "ngocanh2512"
+password = *********** # private password
 dbname = "fshare"
 
 def connection():
